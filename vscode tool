@@ -1,3 +1,33 @@
+local WebSocket = assert(
+    WebSocket or Websocket or websocket or (syn and syn.websocket),
+    "Your executor is missing a websocket API!"
+)
+
+if not game:IsLoaded() then
+    game.Loaded:Wait()
+end
+
+while true do
+    local success, client = pcall(WebSocket.connect, "ws://localhost:33882/")
+    if success then
+        client.OnMessage:Connect(function(payload)
+            local callback, exception = loadstring(payload)
+            if exception then
+                error(exception, 2)
+            end
+
+            task.spawn(callback)
+        end)
+
+        client.OnClose:Wait()
+    end
+
+    task.wait(1)
+end
+
+wait(0.5)
+
+
 repeat task.wait() until game:IsLoaded()
 local players = game:GetService("Players")
 local lp = players.LocalPlayer
@@ -40,5 +70,14 @@ while task.wait() do
         attemptToConnect()
     end
 end
+
+
+game.StarterGui:SetCore("SendNotification", {
+Title = "Vscode loaded",
+Text = "Check Vscode",
+Duration = 5,
+})
+
+            
 
             
